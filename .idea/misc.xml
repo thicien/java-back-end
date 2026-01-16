@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles" value="&#10;&lt;set&gt;&#10;&lt;option value=&quot;$PROJECT_DIR$/pom.xml&quot; /&gt;&#10;&lt;/set&gt;" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="ProjectResources">
+    <defaultResources>
+      <mapping kind="java-test-resources" resources="src/test/resources" />
+      <mapping kind="java-main-resources" resources="src/main/resources" />
+    </defaultResources>
+  </component>
+</project>
