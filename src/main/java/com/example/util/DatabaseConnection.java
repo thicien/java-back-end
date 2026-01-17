@@ -80,27 +80,27 @@ public class DatabaseConnection {
 
             // Insert sample bus data
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'Express Travel', 'BUS001', 'New York', 'Boston', '2026-01-15', '08:00:00', 45.00, 42, 42, 'AC Sleeper' " +
+                    "SELECT 'Royal Galactic Sleeper', 'BUS001', 'New York', 'Boston', '2026-01-17', '20:00:00', 65.00, 42, 38, 'AC Sleeper (2+1)' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS001')");
             
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'Quick Ride', 'BUS002', 'New York', 'Philadelphia', '2026-01-15', '10:30:00', 35.00, 50, 50, 'AC Seater' " +
+                    "SELECT 'Intercity Express', 'BUS002', 'New York', 'Philadelphia', '2026-01-17', '08:30:00', 40.00, 50, 45, 'Semi-Sleeper Luxury' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS002')");
             
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'Comfort Journey', 'BUS003', 'Boston', 'New York', '2026-01-15', '14:00:00', 45.00, 42, 42, 'AC Sleeper' " +
+                    "SELECT 'Mountain Voyager', 'BUS003', 'Boston', 'New York', '2026-01-18', '06:15:00', 25.00, 45, 40, 'Non-AC High Deck' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS003')");
             
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'Speed Bus', 'BUS004', 'Philadelphia', 'Washington DC', '2026-01-15', '06:00:00', 40.00, 50, 50, 'AC Seater' " +
+                    "SELECT 'Coastline Premium', 'BUS004', 'Philadelphia', 'Washington DC', '2026-01-18', '22:00:00', 55.00, 50, 42, 'Multi-Axle Scania AC' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS004')");
             
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'Royal Tours', 'BUS005', 'New York', 'Washington DC', '2026-01-16', '09:00:00', 55.00, 42, 42, 'AC Sleeper' " +
+                    "SELECT 'City Shuttle Pro', 'BUS005', 'New York', 'Washington DC', '2026-01-19', '09:00:00', 18.00, 50, 48, 'Electric Eco-Bus' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS005')");
             
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
-                    "SELECT 'City Express', 'BUS006', 'Boston', 'Philadelphia', '2026-01-16', '11:00:00', 38.00, 50, 50, 'AC Seater' " +
+                    "SELECT 'Sunset Wanderer', 'BUS006', 'Boston', 'Philadelphia', '2026-01-20', '17:45:00', 48.00, 50, 46, 'Executive Class AC' " +
                     "WHERE NOT EXISTS (SELECT 1 FROM buses WHERE bus_number = 'BUS006')");
 
             initialized = true;

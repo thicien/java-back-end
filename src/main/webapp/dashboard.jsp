@@ -144,6 +144,11 @@
             width: 300px;
             min-height: 200px;
             object-fit: cover;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .bus-details {
@@ -274,19 +279,20 @@
         <% } else { %>
             <%
                 String[] busImages = {
-                    "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=600",
-                    "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=600",
-                    "https://images.unsplash.com/photo-1512413316925-fd4b93f31521?q=80&w=600",
-                    "https://images.unsplash.com/photo-1562620644-656450258040?q=80&w=600",
-                    "https://images.unsplash.com/photo-1632276513361-ec853114382e?q=80&w=600",
-                    "https://images.unsplash.com/photo-1590674899484-13da0d1b58f5?q=80&w=600"
+                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?w=600&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1533255320032-192a10a57d1d?w=600&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=600&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?w=600&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1533255320032-192a10a57d1d?w=600&h=300&fit=crop"
                 };
 
                 int imageIndex = 0;
                 for (Bus bus : buses) {
             %>
             <div class="bus-card">
-                <img src="<%= busImages[imageIndex % busImages.length] %>" class="bus-image" alt="<%= bus.getBusName() %>">
+                <img src="<%= busImages[imageIndex % busImages.length] %>" class="bus-image" alt="<%= bus.getBusName() %>" 
+                     onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a237e 0%, #283593 100%)'; this.parentElement.insertAdjacentHTML('afterbegin', '<div style=\"width: 300px; height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3em;\">🚍</div>');">
                 <div class="bus-details">
                     <h3><%= bus.getBusName() %></h3>
                     <span class="bus-type"><%= bus.getBusType() %></span>

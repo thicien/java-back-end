@@ -14,7 +14,7 @@ public class BusDAO {
      */
     public List<Bus> getAllBuses() {
         List<Bus> buses = new ArrayList<>();
-        String query = "SELECT * FROM buses WHERE departure_date >= CURDATE() ORDER BY departure_date, departure_time";
+        String query = "SELECT * FROM buses ORDER BY departure_date, departure_time";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
