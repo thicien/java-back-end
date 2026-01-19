@@ -3,6 +3,7 @@
 <%@ page import="com.example.model.Bus" %>
 <%@ page import="com.example.model.User" %>
 <%
+    // Check if user is logged in
     if (session.getAttribute("user") == null) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
@@ -20,223 +21,285 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickBus | Premium Ticket Booking</title>
     <style>
-        :root {
-            --primary: #1a237e;
-            --secondary: #fbc02d;
-            --accent: #d32f2f;
-            --bg: #f0f2f5;
-            --white: #ffffff;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            background-color: var(--bg);
-            color: #333;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
         }
 
         header {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
             color: white;
-            padding: 1.5rem 5%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-content {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1100px;
-            margin: auto;
             flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
             gap: 15px;
         }
 
-        .header-content h2 {
+        .header-left h1 {
+            font-size: 2em;
             margin: 0;
-            font-size: 1.8rem;
         }
 
         .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
-            font-size: 0.95rem;
+            flex-wrap: wrap;
         }
 
-        .logout-btn {
-            background: var(--accent);
+        .header-right span {
+            font-size: 1.1em;
+        }
+
+        .logout-btn, .bookings-btn {
+            background-color: #d32f2f;
             color: white;
-            padding: 8px 16px;
             border: none;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none;
             font-weight: bold;
+            text-decoration: none;
             transition: 0.3s;
+            display: inline-block;
         }
 
-        .logout-btn:hover {
-            background: #b71c1c;
+        .logout-btn:hover, .bookings-btn:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
         }
 
-        .container {
-            width: 90%;
-            max-width: 1100px;
-            margin: 20px auto;
+        .welcome {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a237e;
+            font-size: 1.8em;
         }
 
         .search-container {
-            background: var(--white);
-            padding: 25px;
-            border-radius: 12px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        .search-group input {
-            width: 100%;
+        .search-form input, .search-form button {
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 0.95rem;
+            font-size: 1em;
         }
 
-        .btn-search {
-            background: var(--secondary);
+        .search-form input {
+            border: 1px solid #ddd;
+        }
+
+        .search-form button {
+            background: #fbc02d;
             color: #000;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
         }
 
-        .btn-search:hover {
+        .search-form button:hover {
             background: #f9a825;
         }
 
-        .bus-card {
-            background: var(--white);
-            border-radius: 12px;
+        .bus-container {
             display: flex;
+            justify-content: center;
+            gap: 30px;
             flex-wrap: wrap;
-            margin-bottom: 25px;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+
+        .bus-card {
+            background: #ffffff;
+            width: 320px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .bus-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
-        .bus-image {
-            width: 300px;
-            min-height: 200px;
-            object-fit: cover;
+        .bus-image-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
             background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .bus-details {
-            flex: 1;
+        .bus-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bus-info {
             padding: 20px;
-            min-width: 300px;
-        }
-
-        .bus-details h3 {
-            margin: 0 0 5px 0;
-            color: var(--primary);
-        }
-
-        .bus-type {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .bus-booking {
-            padding: 20px;
-            width: 200px;
-            border-left: 1px dashed #ccc;
-            text-align: center;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
-        .amenities {
-            font-size: 0.85rem;
+        .bus-card h3 {
+            margin: 0 0 10px 0;
+            color: #1a237e;
+            font-size: 1.3em;
+        }
+
+        .bus-card p {
+            margin: 8px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .route {
             color: #666;
-            margin: 10px 0;
-        }
-
-        .price {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary);
             margin-bottom: 10px;
         }
 
-        .schedule-info {
-            margin: 10px 0;
-            font-weight: 500;
+        .route strong {
+            color: #1a237e;
         }
 
-        .seats-available {
-            font-size: 0.9rem;
-            color: #666;
+        .status {
+            display: inline-block;
             margin: 10px 0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            width: fit-content;
+        }
+
+        .available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .busy {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .price-section {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        .book-btn {
+            background: #1a237e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .book-btn:hover {
+            background: #0d1557;
+        }
+
+        .book-btn-disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .no-buses {
             text-align: center;
-            padding: 40px;
-            background: var(--white);
+            padding: 60px 20px;
+            background: white;
             border-radius: 12px;
             color: #666;
         }
 
         .no-buses h2 {
-            color: var(--primary);
+            color: #1a237e;
         }
 
-        .book-link {
-            text-decoration: none;
-        }
-
-        .book-btn-disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         @media (max-width: 768px) {
-            .bus-image {
-                width: 100%;
-            }
-            .bus-booking {
-                width: 100%;
-                border-left: none;
-                border-top: 1px dashed #ccc;
-            }
-            .search-container {
-                grid-template-columns: 1fr;
-            }
-            .header-content {
+            header {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+
+            .bus-card {
+                width: 100%;
+                max-width: 500px;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -244,88 +307,82 @@
 <body>
 
 <header>
-    <div class="header-content">
-        <h2>🚍 QuickBus</h2>
-        <div class="header-right">
-            <span>Welcome, <%= loggedUser.getFullName() %></span>
-            <a href="<%= request.getContextPath() %>/bookingHistory" class="logout-btn">My Bookings</a>
-            <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
-        </div>
+    <div class="header-left">
+        <h1>🚍 QuickBus</h1>
+    </div>
+    <div class="header-right">
+        <span>Welcome, <strong><%= loggedUser.getFullName() %></strong></span>
+        <a href="<%= request.getContextPath() %>/bookingHistory" class="bookings-btn">My Bookings</a>
+        <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
     </div>
 </header>
 
 <div class="container">
+    <h2>🚌 Available Buses</h2>
+
     <div class="search-container">
-        <form method="POST" style="display: contents;">
-            <div class="search-group">
-                <input type="text" name="departure" placeholder="From City" value="<%= request.getParameter("departure") != null ? request.getParameter("departure") : "" %>">
-            </div>
-            <div class="search-group">
-                <input type="text" name="arrival" placeholder="To City" value="<%= request.getParameter("arrival") != null ? request.getParameter("arrival") : "" %>">
-            </div>
-            <div class="search-group">
-                <input type="date" name="date" value="<%= request.getParameter("date") != null ? request.getParameter("date") : "" %>">
-            </div>
-            <button type="submit" class="btn-search">Find Buses</button>
+        <form method="POST" class="search-form">
+            <input type="text" name="departure" placeholder="From City" value="<%= request.getParameter("departure") != null ? request.getParameter("departure") : "" %>">
+            <input type="text" name="arrival" placeholder="To City" value="<%= request.getParameter("arrival") != null ? request.getParameter("arrival") : "" %>">
+            <input type="date" name="date" value="<%= request.getParameter("date") != null ? request.getParameter("date") : "" %>">
+            <button type="submit">Find Buses</button>
         </form>
     </div>
 
-    <div id="bus-list">
-        <% if (buses.isEmpty()) { %>
-            <div class="no-buses">
-                <h2>No buses available</h2>
-                <p>Try adjusting your search criteria or check back later for more options.</p>
-            </div>
-        <% } else { %>
+    <% if (buses.isEmpty()) { %>
+        <div class="no-buses">
+            <h2>No buses available</h2>
+            <p>Try adjusting your search criteria or check back later for more options.</p>
+        </div>
+    <% } else { %>
+        <div class="bus-container">
             <%
                 String[] busImages = {
-                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?w=600&h=300&fit=crop",
-                    "https://images.unsplash.com/photo-1533255320032-192a10a57d1d?w=600&h=300&fit=crop",
-                    "https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=600&h=300&fit=crop",
-                    "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&h=300&fit=crop",
-                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?w=600&h=300&fit=crop",
-                    "https://images.unsplash.com/photo-1533255320032-192a10a57d1d?w=600&h=300&fit=crop"
+                    "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?auto=format&fit=crop&w=800&q=80"
                 };
 
                 int imageIndex = 0;
                 for (Bus bus : buses) {
+                    String statusText = bus.getAvailableSeats() > 0 ? "Available" : "Fully Booked";
+                    String statusClass = bus.getAvailableSeats() > 0 ? "available" : "busy";
             %>
-            <div class="bus-card">
-                <img src="<%= busImages[imageIndex % busImages.length] %>" class="bus-image" alt="<%= bus.getBusName() %>" 
-                     onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a237e 0%, #283593 100%)'; this.parentElement.insertAdjacentHTML('afterbegin', '<div style=\"width: 300px; height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3em;\">🚍</div>');">
-                <div class="bus-details">
-                    <h3><%= bus.getBusName() %></h3>
-                    <span class="bus-type"><%= bus.getBusType() %></span>
-                    <p class="schedule-info"><strong>🕐 Schedule:</strong> <%= bus.getDepartureTime() %> onwards</p>
-                    <p><strong>📍 Route:</strong> <%= bus.getDepartureLocation() %> → <%= bus.getArrivalLocation() %></p>
-                    <p class="seats-available"><strong>💺 Available Seats:</strong> <%= bus.getAvailableSeats() %> / <%= bus.getTotalSeats() %></p>
-                    <div class="amenities">
-                        <% if (bus.getBusType().contains("Sleeper")) { %>
-                            🛌 Sleeper Beds | 📶 Free Wi-Fi | ⚡ Charging Points
-                        <% } else if (bus.getBusType().contains("Electric")) { %>
-                            🌱 Zero Emission | ♿ Accessible | 📶 Fast Wi-Fi
-                        <% } else { %>
-                            ❄️ Central AC | 💺 Pushback Seats | 🧳 Large Boot Space
-                        <% } %>
+                <div class="bus-card">
+                    <div class="bus-image-wrapper">
+                        <img src="<%= busImages[imageIndex % busImages.length] %>" 
+                             alt="<%= bus.getBusName() %>"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22200%22><rect fill=%22%231a237e%22 width=%22320%22 height=%22200%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🚍</text></svg>';">
+                    </div>
+                    <div class="bus-info">
+                        <h3><%= bus.getBusName() %></h3>
+                        <p class="route"><strong>Route:</strong> <%= bus.getDepartureLocation() %> → <%= bus.getArrivalLocation() %></p>
+                        <p><strong>🕐 Departure:</strong> <%= bus.getDepartureTime() %></p>
+                        <p><strong>📅 Date:</strong> <%= bus.getDepartureDate() %></p>
+                        <p><strong>🧑:</strong> <%= bus.getBusType() %></p>
+                        <p><strong>💺 Seats:</strong> <%= bus.getAvailableSeats() %> / <%= bus.getTotalSeats() %> available</p>
+                        
+                        <span class="status <%= statusClass %>"><%= statusText %></span>
+
+                        <div class="price-section">
+                            <div class="price">$<%= String.format("%.0f", bus.getFare()) %></div>
+                            <% if (bus.getAvailableSeats() > 0) { %>
+                                <a href="<%= request.getContextPath() %>/seatSelection?busId=<%= bus.getBusId() %>" class="book-btn">Book Now</a>
+                            <% } else { %>
+                                <button class="book-btn book-btn-disabled" disabled>Sold Out</button>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
-                <div class="bus-booking">
-                    <div class="price">$<%= String.format("%.0f", bus.getFare()) %></div>
-                    <% if (bus.getAvailableSeats() > 0) { %>
-                        <a href="<%= request.getContextPath() %>/seatSelection?busId=<%= bus.getBusId() %>" class="book-link">
-                            <button class="btn-search" style="width: 100%; cursor: pointer;">Book Ticket</button>
-                        </a>
-                    <% } else { %>
-                        <button class="btn-search book-btn-disabled" disabled>Sold Out</button>
-                    <% } %>
-                </div>
-            </div>
             <%
                     imageIndex++;
                 }
             %>
-        <% } %>
-    </div>
+        </div>
+    <% } %>
 </div>
 
 </body>
