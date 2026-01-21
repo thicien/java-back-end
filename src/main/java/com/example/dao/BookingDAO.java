@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookingDAO {
-    /**
-     * Create a new booking
-     */
     public int createBooking(Booking booking) {
         String query = "INSERT INTO bookings (user_id, bus_id, seat_number, total_fare, status, payment_status, ticket_number) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
