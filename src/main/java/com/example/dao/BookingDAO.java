@@ -63,9 +63,6 @@ public class BookingDAO {
         return bookings;
     }
 
-    /**
-     * Get booking by ID
-     */
     public Booking getBookingById(int bookingId) {
         String query = "SELECT * FROM bookings WHERE booking_id = ?";
 
