@@ -106,9 +106,6 @@ public class BookingDAO {
         }
     }
 
-    /**
-     * Cancel a booking
-     */
     public boolean cancelBooking(int bookingId) {
         String query = "UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?";
 
