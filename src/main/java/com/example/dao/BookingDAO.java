@@ -33,9 +33,7 @@ public class BookingDAO {
         return -1;
     }
 
-    /**
-     * Get bookings for a user
-     */
+
     public List<Booking> getBookingsByUserId(int userId) {
         List<Booking> bookings = new ArrayList<>();
         String query = "SELECT * FROM bookings WHERE user_id = ? ORDER BY booking_date DESC";
