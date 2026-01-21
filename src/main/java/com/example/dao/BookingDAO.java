@@ -91,9 +91,6 @@ public class BookingDAO {
         return null;
     }
 
-    /**
-     * Update payment status
-     */
     public boolean updatePaymentStatus(int bookingId, String paymentStatus) {
         String query = "UPDATE bookings SET payment_status = ? WHERE booking_id = ?";
 
