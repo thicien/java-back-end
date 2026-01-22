@@ -27,7 +27,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,7 +43,7 @@
             overflow: hidden;
         }
         .ticket-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -75,7 +75,7 @@
             border-bottom: none;
         }
         .section-title {
-            color: #667eea;
+            color: #0052CC;
             font-weight: bold;
             margin-bottom: 15px;
             font-size: 0.9em;

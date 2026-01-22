@@ -24,7 +24,7 @@
             background: #f5f7fa;
         }
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             color: white;
             padding: 20px 40px;
             display: flex;
@@ -87,7 +87,7 @@
             background: white;
         }
         .seat.available:hover {
-            border-color: #667eea;
+            border-color: #0052CC;
             background: #f0f5ff;
         }
         .seat.booked {
@@ -96,7 +96,7 @@
             color: #999;
         }
         .seat.selected {
-            background: #667eea;
+            background: #0052CC;
             color: white;
             border-color: #667eea;
         }

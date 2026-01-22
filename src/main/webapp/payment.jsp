@@ -25,7 +25,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -67,7 +67,7 @@
             border-top: 1px solid #ddd;
             font-size: 1.2em;
             font-weight: bold;
-            color: #667eea;
+            color: #0052CC;
         }
         .form-group {
             margin-bottom: 20px;
@@ -87,8 +87,8 @@
         }
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            border-color: #0052CC;
+            box-shadow: 0 0 5px rgba(0, 82, 204, 0.3);
         }
         .card-grid {
             display: grid;
@@ -98,7 +98,7 @@
         .pay-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             color: white;
             border: none;
             border-radius: 5px;

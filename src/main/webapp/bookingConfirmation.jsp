@@ -21,7 +21,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -77,7 +77,7 @@
             font-weight: bold;
         }
         .total-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             color: white;
             padding: 20px;
             border-radius: 10px;
