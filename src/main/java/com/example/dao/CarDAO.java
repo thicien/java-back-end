@@ -93,6 +93,28 @@ public class CarDAO {
     }
 
     /**
+     * Filter cars by engine type
+     */
+    public List<Car> filterByEngineType(String engineType) {
+        List<Car> cars = new ArrayList<>();
+        String query = "SELECT * FROM cars WHERE engine_type = ? ORDER BY brand ASC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, engineType);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Car car = mapResultSetToCar(rs);
+                cars.add(car);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return cars;
+    }
+
+    /**
      * Filter cars by price range
      */
     public List<Car> filterByPriceRange(double minPrice, double maxPrice) {
@@ -149,7 +171,7 @@ public class CarDAO {
         car.setPrice(rs.getDouble("price"));
         car.setMileage(rs.getInt("mileage"));
         car.setEngineType(rs.getString("engine_type"));
-        car.setCondition(rs.getString("car_condition"));
+        car.setCondition(rs.getString("condition"));
         car.setDescription(rs.getString("description"));
         return car;
     }

@@ -1,7 +1,7 @@
 package com.example.servlet;
 
-import com.example.dao.BusDAO;
-import com.example.model.Bus;
+import com.example.dao.CarDAO;
+import com.example.model.Car;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
-    private BusDAO busDAO = new BusDAO();
+    private CarDAO carDAO = new CarDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -24,8 +24,8 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
-        List<Bus> buses = busDAO.getAllBuses();
-        request.setAttribute("buses", buses);
+        List<Car> cars = carDAO.getAllCars();
+        request.setAttribute("cars", cars);
         request.getRequestDispatcher("/dashboard.jsp").forward(request, response);
     }
 
@@ -38,16 +38,20 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
-        String departure = request.getParameter("departure");
-        String arrival = request.getParameter("arrival");
-        String date = request.getParameter("date");
+        String searchBrand = request.getParameter("search");
+        String conditionFilter = request.getParameter("condition");
 
-        List<Bus> buses = busDAO.searchBuses(departure, arrival, date);
+        List<Car> cars;
+        
+        if (searchBrand != null && !searchBrand.isEmpty()) {
+            cars = carDAO.searchByBrand(searchBrand);
+        } else if (conditionFilter != null && !conditionFilter.isEmpty() && !conditionFilter.equals("All")) {
+            cars = carDAO.filterByCondition(conditionFilter);
+        } else {
+            cars = carDAO.getAllCars();
+        }
 
-        request.setAttribute("buses", buses);
-        request.setAttribute("departure", departure);
-        request.setAttribute("arrival", arrival);
-        request.setAttribute("date", date);
+        request.setAttribute("cars", cars);
         request.getRequestDispatcher("/dashboard.jsp").forward(request, response);
     }
 }

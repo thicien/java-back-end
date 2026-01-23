@@ -21,7 +21,7 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -57,7 +57,7 @@
             padding: 20px;
             border-radius: 10px;
             margin: 30px 0;
-            border-left: 5px solid #0066FF;
+            border-left: 5px solid #0052CC;
         }
         .detail-row {
             display: flex;
@@ -77,7 +77,7 @@
             font-weight: bold;
         }
         .total-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -106,7 +106,7 @@
             font-size: 0.9em;
         }
         .booking-id-value {
-            color: #0066FF;
+            color: #0052CC;
             font-size: 1.3em;
             font-weight: bold;
         }
@@ -130,12 +130,13 @@
             justify-content: center;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0052CC;
             color: white;
         }
         .btn-primary:hover {
+            background: #003d99;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 82, 204, 0.3);
         }
         .btn-secondary {
             background: #f0f0f0;
@@ -189,20 +190,29 @@
                 <span class="detail-label">Seat Number</span>
                 <span class="detail-value"><%= seatNumber %></span>
             </div>
+            <%
+                String ticketNumber = (String) request.getAttribute("ticketNumber");
+                if (ticketNumber != null) {
+            %>
+            <div class="detail-row">
+                <span class="detail-label">Ticket Number</span>
+                <span class="detail-value"><%= ticketNumber %></span>
+            </div>
+            <% } %>
         </div>
 
         <div class="total-section">
             <span class="total-label">Total Amount</span>
-            <span class="total-amount">₹<%= fare %></span>
+            <span class="total-amount">$<%= String.format("%.2f", fare) %></span>
         </div>
 
         <p style="color: #666; text-align: center; margin-bottom: 20px;">
-            A confirmation email has been sent to your registered email address. Please keep your booking reference safe.
+            ✅ Your ticket has been successfully booked! A confirmation email has been sent to your registered email address.
         </p>
 
         <div class="button-group">
-            <a href="<%= request.getContextPath() %>/bookingHistory" class="btn btn-primary">View My Bookings</a>
-            <a href="<%= request.getContextPath() %>/dashboard" class="btn btn-secondary">Book Another Ticket</a>
+            <a href="<%= request.getContextPath() %>/bookingHistory" class="btn btn-primary">📋 View My Tickets</a>
+            <a href="<%= request.getContextPath() %>/dashboard" class="btn btn-secondary">🚌 Book Another Ticket</a>
         </div>
 
         <% } %>

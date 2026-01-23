@@ -24,12 +24,13 @@
             background: #f5f7fa;
         }
         .navbar {
-            background: linear-gradient(135deg, #0052CC 0%, #003d99 100%);
+            background: #0052CC;
             color: white;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
         .container {
             max-width: 900px;
@@ -85,20 +86,33 @@
             font-weight: bold;
             transition: all 0.3s;
             background: white;
+            font-size: 0.9em;
+        }
+        .seat.available {
+            background: white;
+            border-color: #0052CC;
+            color: #333;
+            cursor: pointer;
         }
         .seat.available:hover {
             border-color: #0052CC;
             background: #f0f5ff;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 82, 204, 0.3);
         }
         .seat.booked {
             background: #ddd;
+            border-color: #999;
             cursor: not-allowed;
             color: #999;
+            opacity: 0.6;
         }
         .seat.selected {
             background: #0052CC;
             color: white;
-            border-color: #667eea;
+            border-color: #0052CC;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 82, 204, 0.5);
         }
         .seat-legend {
             display: flex;
@@ -137,16 +151,19 @@
         .book-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0052CC;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             font-size: 1.1em;
+            transition: all 0.3s;
         }
         .book-btn:hover {
-            opacity: 0.9;
+            background: #003d99;
+            transform: translateY(-2px);
+        }
         }
         .book-btn:disabled {
             opacity: 0.5;
@@ -164,10 +181,15 @@
             display: inline-block;
             margin-bottom: 20px;
             padding: 10px 20px;
-            background: #667eea;
+            background: #0052CC;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #003d99;
         }
     </style>
 </head>
@@ -229,15 +251,26 @@
 
                 <div class="seats-grid" id="seatsGrid">
                     <%
-                        if (seats != null) {
+                        if (seats != null && !seats.isEmpty()) {
                             for (Seat seat : seats) {
-                                String seatClass = "seat " + (seat.isAvailable() ? "available" : "booked");
+                                boolean isAvailable = seat.isAvailable();
+                                String seatClass = "seat " + (isAvailable ? "available" : "booked");
                     %>
-                    <div class="<%= seatClass %>" onclick="toggleSeat(this, '<%= seat.getSeatNumber() %>')" data-seat="<%= seat.getSeatNumber() %>" <%= seat.isAvailable() ? "" : "disabled" %>>
+                    <div class="<%= seatClass %>" 
+                         <% if (isAvailable) { %>
+                         onclick="toggleSeat(this, '<%= seat.getSeatNumber() %>')" 
+                         <% } %>
+                         data-seat="<%= seat.getSeatNumber() %>">
                         <%= seat.getSeatNumber() %>
                     </div>
                     <%
                             }
+                        } else {
+                    %>
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #666;">
+                        No seats available for this bus
+                    </div>
+                    <%
                         }
                     %>
                 </div>
@@ -247,7 +280,7 @@
                 </div>
 
                 <div class="total-fare">
-                    <strong>Total Fare:</strong> ₹<span id="totalFare">0</span>
+                    <strong>Total Fare:</strong> $<span id="totalFare">0.00</span>
                 </div>
 
                 <button type="submit" class="book-btn" id="bookBtn" disabled>Confirm Booking</button>
@@ -260,30 +293,73 @@
         let selectedSeats = [];
         const fare = <%= bus != null ? bus.getFare() : 0 %>;
 
+        console.log('Seat Selection Page Loaded');
+        console.log('Bus Fare:', fare);
+        console.log('Total Seats Rendered:', document.querySelectorAll('.seat').length);
+
+        // Attach click handlers to all available seats
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            const availableSeats = document.querySelectorAll('.seat.available');
+            console.log('Available seats found:', availableSeats.length);
+            
+            availableSeats.forEach(function(seatElement) {
+                seatElement.addEventListener('click', function(e) {
+                    console.log('Seat clicked:', this.getAttribute('data-seat'));
+                    toggleSeat(this, this.getAttribute('data-seat'));
+                });
+            });
+        });
+
         function toggleSeat(element, seatNumber) {
-            if (element.classList.contains('booked')) return;
-
-            element.classList.toggle('selected');
-
-            if (element.classList.contains('selected')) {
-                selectedSeats.push(seatNumber);
-            } else {
-                selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+            console.log('toggleSeat called with:', seatNumber);
+            
+            if (element.classList.contains('booked')) {
+                console.log('Seat is booked, ignoring click');
+                alert('This seat is already booked');
+                return;
             }
 
+            const isSelected = element.classList.contains('selected');
+            console.log('Is currently selected:', isSelected);
+            
+            if (isSelected) {
+                element.classList.remove('selected');
+                selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+                console.log('Removed seat:', seatNumber);
+            } else {
+                element.classList.add('selected');
+                selectedSeats.push(seatNumber);
+                console.log('Added seat:', seatNumber);
+            }
+
+            console.log('Selected seats now:', selectedSeats);
             updateSeatInfo();
         }
 
         function updateSeatInfo() {
-            document.getElementById('selectedList').textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
-            document.getElementById('totalFare').textContent = (selectedSeats.length * fare).toFixed(2);
-            document.getElementById('bookBtn').disabled = selectedSeats.length === 0;
-
-            // For now, we book one seat at a time
+            const selectedDisplay = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
+            document.getElementById('selectedList').textContent = selectedDisplay;
+            
+            const total = (selectedSeats.length * fare).toFixed(2);
+            document.getElementById('totalFare').textContent = total;
+            
+            const bookBtn = document.getElementById('bookBtn');
+            bookBtn.disabled = selectedSeats.length === 0;
+            console.log('Button enabled:', !bookBtn.disabled);
+            
             if (selectedSeats.length > 0) {
                 document.getElementById('seatNumber').value = selectedSeats[0];
+            } else {
+                document.getElementById('seatNumber').value = '';
             }
         }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            console.log('Window loaded');
+            updateSeatInfo();
+        });
     </script>
 </body>
 </html>

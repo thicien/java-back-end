@@ -59,10 +59,16 @@ public class RegisterServlet extends HttpServlet {
         // Register user
         User user = new User(fullName, email, password);
         if (userDAO.registerUser(user)) {
-            // Set success message in session for display on login page
-            HttpSession session = request.getSession();
-            session.setAttribute("message", "Registration successful! Please login.");
-            response.sendRedirect(request.getContextPath() + "/login");
+            // Auto login and redirect to dashboard
+            User registeredUser = userDAO.authenticateUser(email, password);
+            if (registeredUser != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", registeredUser);
+                session.setAttribute("userId", registeredUser.getUserId());
+                response.sendRedirect(request.getContextPath() + "/dashboard");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login");
+            }
         } else {
             request.setAttribute("error", "Registration failed. Please try again.");
             request.getRequestDispatcher("/register.jsp").forward(request, response);

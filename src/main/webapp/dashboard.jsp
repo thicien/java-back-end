@@ -1,17 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="com.example.model.Bus" %>
-<%@ page import="com.example.model.User" %>
+<%@ page import="java.util.*, com.example.model.Car, com.example.model.User" %>
 <%
     // Check if user is logged in
-    if (session.getAttribute("user") == null) {
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
-    User loggedUser = (User) session.getAttribute("user");
-    List<Bus> buses = (List<Bus>) request.getAttribute("buses");
-    if (buses == null) {
-        buses = new ArrayList<>();
+    
+    // Get cars from request
+    List<Car> cars = (List<Car>) request.getAttribute("cars");
+    if (cars == null) {
+        cars = new ArrayList<>();
     }
 %>
 <!DOCTYPE html>
@@ -19,518 +19,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickBus | Premium Ticket Booking</title>
+    <title>DriveSelect | Used Car Marketplace</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #2563eb;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
         }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background-color: #f4f6f8;
-            padding: 20px;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
 
-        header {
-            background: #0052CC;
+        body { background-color: #f1f5f9; color: var(--dark); line-height: 1.6; }
+
+        /* Header & Navigation */
+        header { 
+            background: var(--dark); 
+            color: white; 
+            padding: 1rem 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 { font-size: 1.8rem; }
+        
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .header-nav a, .header-nav span {
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
         }
-
-        .header-left {
+        
+        .header-nav a:hover {
+            color: var(--primary);
+        }
+        
+        .user-section {
             display: flex;
-            align-items: center;
             gap: 15px;
-        }
-
-        .header-left h1 {
-            font-size: 2em;
-            margin: 0;
-        }
-
-        .header-right {
-            display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
         }
-
-        .header-right span {
-            font-size: 1.1em;
+        
+        .logout-btn {
+            background: var(--primary);
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background 0.3s;
         }
+        
+        .logout-btn:hover {
+            background: #1d4ed8;
+        }
+        
+        /* Hero Section */
+        .hero { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920'); 
+            background-size: cover; 
+            background-position: center; 
+            height: 300px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            text-align: center; 
+        }
+        
+        .hero h2 { font-size: 2.5rem; margin-bottom: 10px; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; }
 
-        .logout-btn, .bookings-btn {
-            background-color: #d32f2f;
+        /* Search Bar */
+        .search-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); 
+            margin-top: -40px; 
+            width: 90%; 
+            max-width: 800px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            display: flex; 
+            gap: 10px;
+        }
+        
+        .search-container input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 1rem; 
+        }
+        
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
+        }
+        
+        .search-container button {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            text-decoration: none;
-            transition: 0.3s;
-            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .search-container button:hover {
+            background: #1d4ed8;
         }
 
-        .logout-btn:hover, .bookings-btn:hover {
-            background-color: #b71c1c;
-            transform: translateY(-2px);
+        /* Container */
+        .container { 
+            max-width: 1200px; 
+            margin: 50px auto; 
+            padding: 0 20px; 
         }
-
-        .welcome {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
+        
+        .filter-section {
+            margin-bottom: 30px;
             text-align: center;
         }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #0052CC;
-            font-size: 1.8em;
+        
+        .filter-section h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
         }
-
-        .search-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .search-form input, .search-form button {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-        }
-
-        .search-form input {
-            border: 1px solid #ddd;
-        }
-
-        .search-form button {
-            background: #0052CC;
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .search-form button:hover {
-            background: #003d99;
-        }
-
-        .bus-container {
+        
+        .filter-buttons {
             display: flex;
-            justify-content: center;
-            gap: 30px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin: 0 auto;
-            max-width: 1400px;
-        }
-
-        .bus-card {
-            background: #ffffff;
-            width: 320px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 82, 204, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            border-top: 4px solid #0052CC;
-        }
-
-        .bus-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 25px rgba(0, 82, 204, 0.25);
-        }
-
-        .bus-image-wrapper {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            background: #0052CC;
-            display: flex;
-            align-items: center;
             justify-content: center;
         }
-
-        .bus-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .bus-info {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bus-card h3 {
-            margin: 0 0 10px 0;
-            color: #0052CC;
-            font-size: 1.3em;
-        }
-
-        .bus-card p {
-            margin: 8px 0;
-            color: #555;
-            font-size: 0.95em;
-        }
-
-        .route {
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .route strong {
-            color: #0052CC;
-        }
-
-        .status {
-            display: inline-block;
-            margin: 10px 0;
-            padding: 6px 12px;
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
             border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-            width: fit-content;
-        }
-
-        .available {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .busy {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .price-section {
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .price {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #0052CC;
-        }
-
-        .book-btn {
-            background: #0052CC;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
         }
 
-        .book-btn:hover {
-            background: #003d99;
+        /* Car Grid */
+        .car-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px;
         }
 
-        .book-btn-disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.6;
+        .car-card { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: transform 0.3s ease; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            cursor: pointer; 
+        }
+        
+        .car-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+        }
+        
+        .car-img { 
+            width: 100%; 
+            height: 200px; 
+            object-fit: cover; 
+            background: #e0e0e0;
+        }
+        
+        .car-info { 
+            padding: 20px; 
+        }
+        
+        .car-price { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+        
+        .car-title { 
+            font-size: 1.2rem; 
+            margin: 5px 0; 
+            font-weight: 600; 
+        }
+        
+        .car-details { 
+            display: flex; 
+            justify-content: space-between; 
+            color: var(--gray); 
+            font-size: 0.9rem; 
+            margin-top: 10px; 
+            border-top: 1px solid #eee; 
+            padding-top: 10px; 
         }
 
-        .no-buses {
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        .modal-content { 
+            background: white; 
+            width: 90%; 
+            max-width: 600px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            position: relative; 
+        }
+        
+        .close-btn { 
+            position: absolute; 
+            top: 15px; 
+            right: 20px; 
+            font-size: 2rem; 
+            cursor: pointer;
+            color: #666;
+            background: white;
+            border: none;
+            z-index: 1001;
+        }
+        
+        .close-btn:hover {
+            color: var(--primary);
+        }
+        
+        .modal-body { 
+            padding: 30px; 
+        }
+        
+        .modal-body h2 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .modal-body p {
+            margin: 10px 0;
+            color: #555;
+        }
+        
+        .contact-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .contact-btn:hover {
+            background: #1d4ed8;
+        }
+        
+        .no-cars {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px;
             background: white;
             border-radius: 12px;
-            color: #666;
+            color: var(--gray);
         }
 
-        .no-buses h2 {
-            color: #0052CC;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 600px) { 
+            .search-container { 
+                flex-direction: column; 
+            }
+            
             header {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 15px;
+                padding: 1rem 2%;
             }
-
-            .header-right {
+            
+            .header-nav {
                 width: 100%;
+                justify-content: space-between;
             }
-
-            .bus-card {
-                width: 100%;
-                max-width: 500px;
+            
+            .hero h2 {
+                font-size: 1.8rem;
             }
-
-            .search-form {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .featured-section {
-            margin-top: 50px;
-            padding: 40px 20px;
-            background: #f0f4f8;
-            border-radius: 15px;
-        }
-
-        .featured-title {
-            text-align: center;
-            color: #0052CC;
-            font-size: 2em;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .featured-subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 1.1em;
-        }
-
-        .featured-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 25px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .featured-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 82, 204, 0.15);
-            transition: all 0.3s ease;
-            border-top: 4px solid #0052CC;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .featured-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 25px rgba(0, 82, 204, 0.3);
-        }
-
-        .featured-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background: #0052CC;
-        }
-
-        .featured-card-content {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .featured-card h4 {
-            color: #0052CC;
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .featured-card p {
-            color: #666;
-            margin: 8px 0;
-            font-size: 0.95em;
-        }
-
-        .featured-route {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .featured-price {
-            color: #0052CC;
-            font-size: 1.4em;
-            font-weight: bold;
-            margin-top: auto;
-            margin-bottom: 10px;
-        }
-
-        .featured-btn {
-            background: #0052CC;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-            display: block;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .featured-btn:hover {
-            background: #003d99;
-            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="header-left">
-        <h1>🚍 QuickBus</h1>
-    </div>
-    <div class="header-right">
-        <span>Welcome, <strong><%= loggedUser.getFullName() %></strong></span>
-        <a href="<%= request.getContextPath() %>/bookingHistory" class="bookings-btn">My Bookings</a>
-        <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
-    </div>
-</header>
-
-<div class="container">
-    <h2>🚌 Available Buses</h2>
-
-    <div class="search-container">
-        <form method="POST" class="search-form">
-            <input type="text" name="departure" placeholder="From City" value="<%= request.getParameter("departure") != null ? request.getParameter("departure") : "" %>">
-            <input type="text" name="arrival" placeholder="To City" value="<%= request.getParameter("arrival") != null ? request.getParameter("arrival") : "" %>">
-            <input type="date" name="date" value="<%= request.getParameter("date") != null ? request.getParameter("date") : "" %>">
-            <button type="submit">Find Buses</button>
-        </form>
-    </div>
-
-    <% if (buses.isEmpty()) { %>
-        <div class="no-buses">
-            <h2>No buses available</h2>
-            <p>Try adjusting your search criteria or check back later for more options.</p>
+    <!-- Header -->
+    <header>
+        <h1>🚗 DriveSelect</h1>
+        <div class="header-nav">
+            <span>Marketplace</span>
+            <span>Sell Car</span>
+            <div class="user-section">
+                <span>Welcome, <strong><%= user.getFullName() %></strong></span>
+                <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
+            </div>
         </div>
-    <% } else { %>
-        <div class="bus-container">
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Find Your Next Adventure</h2>
+        <p>Browse our premium collection of certified used cars</p>
+    </section>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by brand or model (e.g., BMW, Tesla)..." onkeyup="filterCars()">
+        <button onclick="filterCars()">Search</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Filter Buttons -->
+        <div class="filter-section">
+            <h3>Filter by Condition</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByCondition('All')">All Cars</button>
+                <button class="filter-btn" onclick="filterByCondition('Excellent')">Excellent</button>
+                <button class="filter-btn" onclick="filterByCondition('Good')">Good</button>
+                <button class="filter-btn" onclick="filterByCondition('Fair')">Fair</button>
+            </div>
+        </div>
+
+        <!-- Car Grid -->
+        <div class="car-grid" id="carGrid">
             <%
-                String[] busImages = {
-                    "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1590611357128-7a28610f940a?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1620055375841-7607a0a03075?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1562620644-85bc21387f6e?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1557223562-6c77ef16210f?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1512411604240-5290f9712e09?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1622329388062-8e7526738596?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1568228128648-97f48037146d?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1520105072000-f44fc083e50b?auto=format&fit=crop&w=800&q=80"
-                };
-
-                int imageIndex = 0;
-                for (Bus bus : buses) {
-                    String statusText = bus.getAvailableSeats() > 0 ? "Available" : "Fully Booked";
-                    String statusClass = bus.getAvailableSeats() > 0 ? "available" : "busy";
+                if (cars != null && !cars.isEmpty()) {
+                    for (Car car : cars) {
             %>
-                <div class="bus-card">
-                    <div class="bus-image-wrapper">
-                        <img src="<%= busImages[imageIndex % busImages.length] %>" 
-                             alt="<%= bus.getBusName() %>"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22200%22><rect fill=%22%231a237e%22 width=%22320%22 height=%22200%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🚍</text></svg>';">
-                    </div>
-                    <div class="bus-info">
-                        <h3><%= bus.getBusName() %></h3>
-                        <p class="route"><strong>Route:</strong> <%= bus.getDepartureLocation() %> → <%= bus.getArrivalLocation() %></p>
-                        <p><strong>🕐 Departure:</strong> <%= bus.getDepartureTime() %></p>
-                        <p><strong>📅 Date:</strong> <%= bus.getDepartureDate() %></p>
-                        <p><strong>🧑:</strong> <%= bus.getBusType() %></p>
-                        <p><strong>💺 Seats:</strong> <%= bus.getAvailableSeats() %> / <%= bus.getTotalSeats() %> available</p>
-                        
-                        <span class="status <%= statusClass %>"><%= statusText %></span>
-
-                        <div class="price-section">
-                            <div class="price">$<%= String.format("%.0f", bus.getFare()) %></div>
-                            <% if (bus.getAvailableSeats() > 0) { %>
-                                <a href="<%= request.getContextPath() %>/seatSelection?busId=<%= bus.getBusId() %>" class="book-btn">Book Now</a>
-                            <% } else { %>
-                                <button class="book-btn book-btn-disabled" disabled>Sold Out</button>
-                            <% } %>
+                <div class="car-card" onclick="openModal('<%= car.getBrand() %>', '<%= car.getModel() %>', '<%= car.getLaunchYear() %>', '<%= car.getPrice() %>', '<%= car.getMileage() %>', '<%= car.getEngineType() %>', '<%= car.getCondition() %>', '<%= car.getDescription() %>')">
+                    <div class="car-img" style="background: url('https://via.placeholder.com/300x200?text=<%= car.getBrand() %>+<%= car.getModel() %>'); background-size: cover; background-position: center;"></div>
+                    <div class="car-info">
+                        <p class="car-price">$<%= String.format("%.0f", car.getPrice()) %></p>
+                        <h3 class="car-title"><%= car.getLaunchYear() %> <%= car.getBrand() %> <%= car.getModel() %></h3>
+                        <div class="car-details">
+                            <span>📍 <%= car.getMileage() %> km</span>
+                            <span>⛽ <%= car.getEngineType() %></span>
                         </div>
                     </div>
                 </div>
             <%
-                    imageIndex++;
+                    }
+                } else {
+            %>
+                <div class="no-cars">
+                    <h3>No cars found</h3>
+                    <p>Try adjusting your search criteria</p>
+                </div>
+            <%
                 }
             %>
         </div>
-    <% } %>
-</div>
-
-<!-- Featured Buses Section -->
-<div class="featured-section">
-    <h2 class="featured-title">🚌 Premium Bus Services</h2>
-    <p class="featured-subtitle">Check out our 10 premium bus routes with the best prices</p>
-    
-    <div class="featured-grid">
-        <%
-            // Premium bus data from the BusProjectGenerator
-            String[][] premiumBuses = {
-                {"City Express", "New York - DC", "$30", "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=500&q=80"},
-                {"Mountain Traveler", "Denver - Aspen", "$55", "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=500&q=80"},
-                {"Coastal Liner", "LA - San Diego", "$25", "https://images.unsplash.com/photo-1590611357128-7a28610f940a?auto=format&fit=crop&w=500&q=80"},
-                {"Night Owl Sleeper", "Chicago - Nashville", "$75", "https://images.unsplash.com/photo-1620055375841-7607a0a03075?auto=format&fit=crop&w=500&q=80"},
-                {"Executive Shuttle", "Airport Transfer", "$15", "https://images.unsplash.com/photo-1562620644-85bc21387f6e?auto=format&fit=crop&w=500&q=80"},
-                {"Euro Tourer", "London - Paris", "$85", "https://images.unsplash.com/photo-1557223562-6c77ef16210f?auto=format&fit=crop&w=500&q=80"},
-                {"Interstate Jet", "Dallas - Houston", "$40", "https://images.unsplash.com/photo-1512411604240-5290f9712e09?auto=format&fit=crop&w=500&q=80"},
-                {"Nature Explorer", "Seattle - Portland", "$35", "https://images.unsplash.com/photo-1622329388062-8e7526738596?auto=format&fit=crop&w=500&q=80"},
-                {"Golden Sun", "Miami - Orlando", "$20", "https://images.unsplash.com/photo-1568228128648-97f48037146d?auto=format&fit=crop&w=500&q=80"},
-                {"Skyline Transit", "Toronto - Ottawa", "$50", "https://images.unsplash.com/photo-1520105072000-f44fc083e50b?auto=format&fit=crop&w=500&q=80"}
-            };
-            
-            for (String[] bus : premiumBuses) {
-        %>
-            <div class="featured-card">
-                <img src="<%= bus[3] %>" alt="<%= bus[0] %>" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22260%22 height=%22180%22><rect fill=%22%230052CC%22 width=%22260%22 height=%22180%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🚌</text></svg>';">
-                <div class="featured-card-content">
-                    <h4><%= bus[0] %></h4>
-                    <p class="featured-route">📍 <%= bus[1] %></p>
-                    <p class="featured-price"><%= bus[2] %></p>
-                    <a href="<%= request.getContextPath() %>/dashboard" class="featured-btn">Book Now</a>
-                </div>
-            </div>
-        <% } %>
     </div>
-</div>
 
+    <!-- Modal -->
+    <div id="carModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modalData"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample cars with beautiful Unsplash images
+        const carsData = [
+            {
+                id: 1,
+                brand: "Tesla",
+                model: "Model 3 Long Range",
+                year: 2022,
+                price: 38500,
+                mileage: "12,400",
+                fuel: "Electric",
+                condition: "Excellent",
+                description: "Pristine condition, full self-driving capability included. One owner, non-smoker.",
+                image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 2,
+                brand: "BMW",
+                model: "M4 Competition",
+                year: 2021,
+                price: 62000,
+                mileage: "8,200",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Ultimate driving machine with carbon fiber interior package and sport exhaust.",
+                image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 3,
+                brand: "Ford",
+                model: "F-150 Raptor",
+                year: 2020,
+                price: 55900,
+                mileage: "35,000",
+                fuel: "Gasoline",
+                condition: "Good",
+                description: "Off-road ready with upgraded Fox shocks and 35-inch all-terrain tires.",
+                image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 4,
+                brand: "Audi",
+                model: "A5 Sportback",
+                year: 2019,
+                price: 29500,
+                mileage: "42,000",
+                fuel: "Gasoline",
+                condition: "Good",
+                description: "Elegant styling with Quattro all-wheel drive and premium Bang & Olufsen sound.",
+                image: "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 5,
+                brand: "Porsche",
+                model: "911 Carrera",
+                year: 2023,
+                price: 115000,
+                mileage: "1,500",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Like new condition. Special Guard's Red paint and sport chrono package.",
+                image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 6,
+                brand: "Toyota",
+                model: "Camry",
+                year: 2020,
+                price: 25000,
+                mileage: "52,000",
+                fuel: "Petrol",
+                condition: "Excellent",
+                description: "Reliable and fuel-efficient sedan with excellent maintenance history.",
+                image: "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 7,
+                brand: "Honda",
+                model: "Civic",
+                year: 2019,
+                price: 22000,
+                mileage: "48,000",
+                fuel: "Diesel",
+                condition: "Good",
+                description: "Compact and nimble with excellent handling and reliability.",
+                image: "https://images.unsplash.com/photo-1609708536965-bc6e90a279ba?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 8,
+                brand: "Mercedes-Benz",
+                model: "C-Class",
+                year: 2021,
+                price: 45000,
+                mileage: "28,000",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Luxury sedan with premium interior and advanced safety features.",
+                image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&q=80&w=600"
+            }
+        ];
+
+        let filteredCars = [...carsData];
+        let currentConditionFilter = 'All';
+
+        // Display cars
+        function displayCars(carsArray) {
+            const grid = document.getElementById('carGrid');
+            
+            if (carsArray.length === 0) {
+                grid.innerHTML = '<div class="no-cars" style="grid-column: 1/-1;"><h3>No cars found</h3><p>Try adjusting your search criteria</p></div>';
+                return;
+            }
+
+            grid.innerHTML = carsArray.map(car => `
+                <div class="car-card" onclick="openModal('${car.brand}', '${car.model}', ${car.year}, ${car.price}, '${car.mileage}', '${car.fuel}', '${car.condition}', '${car.description}')">
+                    <div class="car-img" style="background: url('${car.image}'); background-size: cover; background-position: center;"></div>
+                    <div class="car-info">
+                        <p class="car-price">$${car.price.toLocaleString()}</p>
+                        <h3 class="car-title">${car.year} ${car.brand} ${car.model}</h3>
+                        <div class="car-details">
+                            <span>📍 ${car.mileage} km</span>
+                            <span>⛽ ${car.fuel}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search filter
+        function filterCars() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredCars = carsData.filter(car => {
+                const matchesSearch = car.brand.toLowerCase().includes(searchTerm) || 
+                                     car.model.toLowerCase().includes(searchTerm);
+                const matchesCondition = currentConditionFilter === 'All' || car.condition === currentConditionFilter;
+                return matchesSearch && matchesCondition;
+            });
+            
+            displayCars(filteredCars);
+        }
+
+        // Filter by condition
+        function filterByCondition(condition) {
+            currentConditionFilter = condition;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterCars();
+        }
+
+        // Modal functions
+        function openModal(brand, model, year, price, mileage, fuel, condition, description) {
+            const modalData = document.getElementById('modalData');
+            const modal = document.getElementById('carModal');
+
+            modalData.innerHTML = `
+                <div class="car-img" style="background: url('https://via.placeholder.com/600x300?text=${brand}+${model}'); background-size: cover; background-position: center; height: 300px;"></div>
+                <div class="modal-body">
+                    <h2>${year} ${brand} ${model}</h2>
+                    <p style="color:var(--primary); font-size:1.5rem; font-weight:bold; margin: 10px 0;">$${price.toLocaleString()}</p>
+                    <p><strong>Condition:</strong> <span style="color: #4CAF50; font-weight: bold;">${condition}</span></p>
+                    <p><strong>Mileage:</strong> ${mileage} km</p>
+                    <p><strong>Fuel Type:</strong> ${fuel}</p>
+                    <p style="margin-top:15px; color: #555; line-height: 1.6;">${description}</p>
+                    <button class="contact-btn">Contact Seller</button>
+                </div>
+            `;
+            modal.style.display = "flex";
+        }
+
+        function closeModal(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('carModal').style.display = "none";
+        }
+
+        // Close on escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initial load
+        displayCars(carsData);
+    </script>
 </body>
 </html>

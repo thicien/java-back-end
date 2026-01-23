@@ -1,17 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="com.example.model.Bus" %>
-<%@ page import="com.example.model.User" %>
+<%@ page import="java.util.*, com.example.model.Car, com.example.model.User" %>
 <%
     // Check if user is logged in
-    if (session.getAttribute("user") == null) {
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
-    User loggedUser = (User) session.getAttribute("user");
-    List<Bus> buses = (List<Bus>) request.getAttribute("buses");
-    if (buses == null) {
-        buses = new ArrayList<>();
+    
+    // Get cars from request
+    List<Car> cars = (List<Car>) request.getAttribute("cars");
+    if (cars == null) {
+        cars = new ArrayList<>();
     }
 %>
 <!DOCTYPE html>
@@ -19,371 +19,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickBus | Premium Ticket Booking</title>
+    <title>DriveSelect | Used Car Marketplace</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #2563eb;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
         }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background-color: #f4f6f8;
-            padding: 20px;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
 
-        header {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+        body { background-color: #f1f5f9; color: var(--dark); line-height: 1.6; }
+
+        /* Header & Navigation */
+        header { 
+            background: var(--dark); 
+            color: white; 
+            padding: 1rem 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 { font-size: 1.8rem; }
+        
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .header-nav a, .header-nav span {
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
         }
-
-        .header-left {
+        
+        .header-nav a:hover {
+            color: var(--primary);
+        }
+        
+        .user-section {
             display: flex;
-            align-items: center;
             gap: 15px;
-        }
-
-        .header-left h1 {
-            font-size: 2em;
-            margin: 0;
-        }
-
-        .header-right {
-            display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
         }
-
-        .header-right span {
-            font-size: 1.1em;
+        
+        .logout-btn {
+            background: var(--primary);
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background 0.3s;
         }
+        
+        .logout-btn:hover {
+            background: #1d4ed8;
+        }
+        
+        /* Hero Section */
+        .hero { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920'); 
+            background-size: cover; 
+            background-position: center; 
+            height: 300px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            text-align: center; 
+        }
+        
+        .hero h2 { font-size: 2.5rem; margin-bottom: 10px; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; }
 
-        .logout-btn, .bookings-btn {
-            background-color: #d32f2f;
+        /* Search Bar */
+        .search-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); 
+            margin-top: -40px; 
+            width: 90%; 
+            max-width: 800px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            display: flex; 
+            gap: 10px;
+        }
+        
+        .search-container input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 1rem; 
+        }
+        
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
+        }
+        
+        .search-container button {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            text-decoration: none;
-            transition: 0.3s;
-            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .search-container button:hover {
+            background: #1d4ed8;
         }
 
-        .logout-btn:hover, .bookings-btn:hover {
-            background-color: #b71c1c;
-            transform: translateY(-2px);
+        /* Container */
+        .container { 
+            max-width: 1200px; 
+            margin: 50px auto; 
+            padding: 0 20px; 
         }
-
-        .welcome {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
+        
+        .filter-section {
+            margin-bottom: 30px;
             text-align: center;
         }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #1a237e;
-            font-size: 1.8em;
+        
+        .filter-section h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
         }
-
-        .search-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .search-form input, .search-form button {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-        }
-
-        .search-form input {
-            border: 1px solid #ddd;
-        }
-
-        .search-form button {
-            background: #fbc02d;
-            color: #000;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .search-form button:hover {
-            background: #f9a825;
-        }
-
-        .bus-container {
+        
+        .filter-buttons {
             display: flex;
-            justify-content: center;
-            gap: 30px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin: 0 auto;
-            max-width: 1400px;
-        }
-
-        .bus-card {
-            background: #ffffff;
-            width: 320px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bus-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .bus-image-wrapper {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            display: flex;
-            align-items: center;
             justify-content: center;
         }
-
-        .bus-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .bus-info {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bus-card h3 {
-            margin: 0 0 10px 0;
-            color: #1a237e;
-            font-size: 1.3em;
-        }
-
-        .bus-card p {
-            margin: 8px 0;
-            color: #555;
-            font-size: 0.95em;
-        }
-
-        .route {
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .route strong {
-            color: #1a237e;
-        }
-
-        .status {
-            display: inline-block;
-            margin: 10px 0;
-            padding: 6px 12px;
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
             border-radius: 20px;
-            font-size: 0.85em;
+            cursor: pointer;
             font-weight: bold;
-            width: fit-content;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
         }
 
-        .available {
-            background-color: #d4edda;
-            color: #155724;
+        /* Car Grid */
+        .car-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px;
         }
 
-        .busy {
-            background-color: #f8d7da;
-            color: #721c24;
+        .car-card { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: transform 0.3s ease; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            cursor: pointer; 
+        }
+        
+        .car-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+        }
+        
+        .car-img { 
+            width: 100%; 
+            height: 200px; 
+            object-fit: cover; 
+            background: #e0e0e0;
+        }
+        
+        .car-info { 
+            padding: 20px; 
+        }
+        
+        .car-price { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+        
+        .car-title { 
+            font-size: 1.2rem; 
+            margin: 5px 0; 
+            font-weight: 600; 
+        }
+        
+        .car-details { 
+            display: flex; 
+            justify-content: space-between; 
+            color: var(--gray); 
+            font-size: 0.9rem; 
+            margin-top: 10px; 
+            border-top: 1px solid #eee; 
+            padding-top: 10px; 
         }
 
-        .price-section {
-            border-top: 1px solid #eee;
-            padding-top: 15px;
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center; 
         }
-
-        .price {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #1a237e;
+        
+        .modal-content { 
+            background: white; 
+            width: 90%; 
+            max-width: 600px; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            position: relative; 
         }
-
-        .book-btn {
-            background: #1a237e;
+        
+        .close-btn { 
+            position: absolute; 
+            top: 15px; 
+            right: 20px; 
+            font-size: 2rem; 
+            cursor: pointer;
+            color: #666;
+            background: white;
+            border: none;
+            z-index: 1001;
+        }
+        
+        .close-btn:hover {
+            color: var(--primary);
+        }
+        
+        .modal-body { 
+            padding: 30px; 
+        }
+        
+        .modal-body h2 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .modal-body p {
+            margin: 10px 0;
+            color: #555;
+        }
+        
+        .contact-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+            font-size: 1rem;
+            transition: background 0.3s;
         }
-
-        .book-btn:hover {
-            background: #0d1557;
+        
+        .contact-btn:hover {
+            background: #1d4ed8;
         }
-
-        .book-btn-disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .no-buses {
+        
+        .no-cars {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px;
             background: white;
             border-radius: 12px;
-            color: #666;
+            color: var(--gray);
         }
 
-        .no-buses h2 {
-            color: #1a237e;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 600px) { 
+            .search-container { 
+                flex-direction: column; 
+            }
+            
             header {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 15px;
+                padding: 1rem 2%;
             }
-
-            .header-right {
+            
+            .header-nav {
                 width: 100%;
+                justify-content: space-between;
             }
-
-            .bus-card {
-                width: 100%;
-                max-width: 500px;
-            }
-
-            .search-form {
-                grid-template-columns: 1fr;
+            
+            .hero h2 {
+                font-size: 1.8rem;
             }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="header-left">
-        <h1>🚍 QuickBus</h1>
-    </div>
-    <div class="header-right">
-        <span>Welcome, <strong><%= loggedUser.getFullName() %></strong></span>
-        <a href="<%= request.getContextPath() %>/bookingHistory" class="bookings-btn">My Bookings</a>
-        <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
-    </div>
-</header>
-
-<div class="container">
-    <h2>🚌 Available Buses</h2>
-
-    <div class="search-container">
-        <form method="POST" class="search-form">
-            <input type="text" name="departure" placeholder="From City" value="<%= request.getParameter("departure") != null ? request.getParameter("departure") : "" %>">
-            <input type="text" name="arrival" placeholder="To City" value="<%= request.getParameter("arrival") != null ? request.getParameter("arrival") : "" %>">
-            <input type="date" name="date" value="<%= request.getParameter("date") != null ? request.getParameter("date") : "" %>">
-            <button type="submit">Find Buses</button>
-        </form>
-    </div>
-
-    <% if (buses.isEmpty()) { %>
-        <div class="no-buses">
-            <h2>No buses available</h2>
-            <p>Try adjusting your search criteria or check back later for more options.</p>
+    <!-- Header -->
+    <header>
+        <h1>🚗 DriveSelect</h1>
+        <div class="header-nav">
+            <span>Marketplace</span>
+            <span>Sell Car</span>
+            <div class="user-section">
+                <span>Welcome, <strong><%= user.getFullName() %></strong></span>
+                <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Logout</a>
+            </div>
         </div>
-    <% } else { %>
-        <div class="bus-container">
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Find Your Next Adventure</h2>
+        <p>Browse our premium collection of certified used cars</p>
+    </section>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by brand or model (e.g., BMW, Tesla)..." onkeyup="filterCars()">
+        <button onclick="filterCars()">Search</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Filter Buttons -->
+        <div class="filter-section">
+            <h3>Filter by Condition</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByCondition('All')">All Cars</button>
+                <button class="filter-btn" onclick="filterByCondition('Excellent')">Excellent</button>
+                <button class="filter-btn" onclick="filterByCondition('Good')">Good</button>
+                <button class="filter-btn" onclick="filterByCondition('Fair')">Fair</button>
+            </div>
+        </div>
+
+        <!-- Car Grid -->
+        <div class="car-grid" id="carGrid">
             <%
-                String[] busImages = {
-                    "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1464219414839-083f6b4c3efc?auto=format&fit=crop&w=800&q=80"
-                };
-
-                int imageIndex = 0;
-                for (Bus bus : buses) {
-                    String statusText = bus.getAvailableSeats() > 0 ? "Available" : "Fully Booked";
-                    String statusClass = bus.getAvailableSeats() > 0 ? "available" : "busy";
+                if (cars != null && !cars.isEmpty()) {
+                    for (Car car : cars) {
             %>
-                <div class="bus-card">
-                    <div class="bus-image-wrapper">
-                        <img src="<%= busImages[imageIndex % busImages.length] %>" 
-                             alt="<%= bus.getBusName() %>"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22200%22><rect fill=%22%231a237e%22 width=%22320%22 height=%22200%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>🚍</text></svg>';">
-                    </div>
-                    <div class="bus-info">
-                        <h3><%= bus.getBusName() %></h3>
-                        <p class="route"><strong>Route:</strong> <%= bus.getDepartureLocation() %> → <%= bus.getArrivalLocation() %></p>
-                        <p><strong>🕐 Departure:</strong> <%= bus.getDepartureTime() %></p>
-                        <p><strong>📅 Date:</strong> <%= bus.getDepartureDate() %></p>
-                        <p><strong>🧑:</strong> <%= bus.getBusType() %></p>
-                        <p><strong>💺 Seats:</strong> <%= bus.getAvailableSeats() %> / <%= bus.getTotalSeats() %> available</p>
-                        
-                        <span class="status <%= statusClass %>"><%= statusText %></span>
-
-                        <div class="price-section">
-                            <div class="price">$<%= String.format("%.0f", bus.getFare()) %></div>
-                            <% if (bus.getAvailableSeats() > 0) { %>
-                                <a href="<%= request.getContextPath() %>/seatSelection?busId=<%= bus.getBusId() %>" class="book-btn">Book Now</a>
-                            <% } else { %>
-                                <button class="book-btn book-btn-disabled" disabled>Sold Out</button>
-                            <% } %>
+                <div class="car-card" onclick="openModal('<%= car.getBrand() %>', '<%= car.getModel() %>', '<%= car.getLaunchYear() %>', '<%= car.getPrice() %>', '<%= car.getMileage() %>', '<%= car.getEngineType() %>', '<%= car.getCondition() %>', '<%= car.getDescription() %>')">
+                    <div class="car-img" style="background: url('https://via.placeholder.com/300x200?text=<%= car.getBrand() %>+<%= car.getModel() %>'); background-size: cover; background-position: center;"></div>
+                    <div class="car-info">
+                        <p class="car-price">$<%= String.format("%.0f", car.getPrice()) %></p>
+                        <h3 class="car-title"><%= car.getLaunchYear() %> <%= car.getBrand() %> <%= car.getModel() %></h3>
+                        <div class="car-details">
+                            <span>📍 <%= car.getMileage() %> km</span>
+                            <span>⛽ <%= car.getEngineType() %></span>
                         </div>
                     </div>
                 </div>
             <%
-                    imageIndex++;
+                    }
+                } else {
+            %>
+                <div class="no-cars">
+                    <h3>No cars found</h3>
+                    <p>Try adjusting your search criteria</p>
+                </div>
+            <%
                 }
             %>
         </div>
-    <% } %>
-</div>
+    </div>
 
+    <!-- Modal -->
+    <div id="carModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modalData"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get cars data from server
+        const carsData = [
+            <%
+                if (cars != null && !cars.isEmpty()) {
+                    for (int i = 0; i < cars.size(); i++) {
+                        Car car = cars.get(i);
+            %>
+            {
+                id: <%= i + 1 %>,
+                brand: "<%= car.getBrand() %>",
+                model: "<%= car.getModel() %>",
+                year: <%= car.getLaunchYear() %>,
+                price: <%= car.getPrice() %>,
+                mileage: "<%= car.getMileage() %>",
+                fuel: "<%= car.getEngineType() %>",
+                condition: "<%= car.getCondition() %>",
+                description: "<%= car.getDescription().replaceAll("\"", "\\\\\"") %>",
+                image: "https://via.placeholder.com/400x300?text=<%= car.getBrand() %>+<%= car.getModel() %>"
+            }
+            <%= i < cars.size() - 1 ? "," : "" %>
+            <%
+                    }
+                }
+            %>
+        ];
+
+        let filteredCars = [...carsData];
+        let currentConditionFilter = 'All';
+
+        // Display cars
+        function displayCars(carsArray) {
+            const grid = document.getElementById('carGrid');
+            
+            if (carsArray.length === 0) {
+                grid.innerHTML = '<div class="no-cars" style="grid-column: 1/-1;"><h3>No cars found</h3><p>Try adjusting your search criteria</p></div>';
+                return;
+            }
+
+            grid.innerHTML = carsArray.map(car => `
+                <div class="car-card" onclick="openModal('${car.brand}', '${car.model}', ${car.year}, ${car.price}, '${car.mileage}', '${car.fuel}', '${car.condition}', '${car.description}')">
+                    <div class="car-img" style="background: url('${car.image}'); background-size: cover; background-position: center;"></div>
+                    <div class="car-info">
+                        <p class="car-price">$${car.price.toLocaleString()}</p>
+                        <h3 class="car-title">${car.year} ${car.brand} ${car.model}</h3>
+                        <div class="car-details">
+                            <span>📍 ${car.mileage} km</span>
+                            <span>⛽ ${car.fuel}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search filter
+        function filterCars() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredCars = carsData.filter(car => {
+                const matchesSearch = car.brand.toLowerCase().includes(searchTerm) || 
+                                     car.model.toLowerCase().includes(searchTerm);
+                const matchesCondition = currentConditionFilter === 'All' || car.condition === currentConditionFilter;
+                return matchesSearch && matchesCondition;
+            });
+            
+            displayCars(filteredCars);
+        }
+
+        // Filter by condition
+        function filterByCondition(condition) {
+            currentConditionFilter = condition;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            filterCars();
+        }
+
+        // Modal functions
+        function openModal(brand, model, year, price, mileage, fuel, condition, description) {
+            const modalData = document.getElementById('modalData');
+            const modal = document.getElementById('carModal');
+
+            modalData.innerHTML = `
+                <div class="car-img" style="background: url('https://via.placeholder.com/600x300?text=${brand}+${model}'); background-size: cover; background-position: center; height: 300px;"></div>
+                <div class="modal-body">
+                    <h2>${year} ${brand} ${model}</h2>
+                    <p style="color:var(--primary); font-size:1.5rem; font-weight:bold; margin: 10px 0;">$${price.toLocaleString()}</p>
+                    <p><strong>Condition:</strong> <span style="color: #4CAF50; font-weight: bold;">${condition}</span></p>
+                    <p><strong>Mileage:</strong> ${mileage} km</p>
+                    <p><strong>Fuel Type:</strong> ${fuel}</p>
+                    <p style="margin-top:15px; color: #555; line-height: 1.6;">${description}</p>
+                    <button class="contact-btn">Contact Seller</button>
+                </div>
+            `;
+            modal.style.display = "flex";
+        }
+
+        function closeModal(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('carModal').style.display = "none";
+        }
+
+        // Close on escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initial load
+        displayCars(carsData);
+    </script>
 </body>
 </html>

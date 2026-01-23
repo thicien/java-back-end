@@ -119,4 +119,34 @@ public class BookingDAO {
             return false;
         }
     }
+
+    public boolean deleteBooking(int bookingId) {
+        String query = "DELETE FROM bookings WHERE booking_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, bookingId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateBooking(Booking booking) {
+        String query = "UPDATE bookings SET seat_number = ?, total_fare = ? WHERE booking_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, booking.getSeatNumber());
+            stmt.setDouble(2, booking.getTotalFare());
+            stmt.setInt(3, booking.getBookingId());
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
