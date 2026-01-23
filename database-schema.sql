@@ -65,19 +65,20 @@ CREATE TABLE IF NOT EXISTS cars (
     engine_type VARCHAR(50) NOT NULL,
     condition VARCHAR(50) NOT NULL,
     description TEXT,
+    image_url VARCHAR(500),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Sample Car Data for Used Cars Marketplace
-INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) VALUES
-('Toyota', 'Camry', 2020, 22000.00, 45000, 'Petrol', 'Excellent', 'Well-maintained Toyota Camry with full service history. Excellent condition.'),
-('Honda', 'Civic', 2019, 18500.00, 52000, 'Petrol', 'Good', 'Reliable Honda Civic with great fuel efficiency. Recently serviced.'),
-('Hyundai', 'Elantra', 2021, 19500.00, 35000, 'Petrol', 'Excellent', 'Latest model Hyundai Elantra with modern features and excellent condition.'),
-('Mazda', 'Mazda3', 2020, 21000.00, 40000, 'Petrol', 'Good', 'Sporty Mazda3 with great handling and performance. Well maintained.'),
-('Nissan', 'Altima', 2018, 17000.00, 65000, 'Petrol', 'Fair', 'Budget-friendly Nissan Altima. Mechanically sound with minor cosmetic issues.'),
-('Ford', 'Focus', 2019, 16500.00, 55000, 'Diesel', 'Good', 'Efficient Ford Focus with low fuel consumption. Great for long drives.'),
-('Volkswagen', 'Golf', 2021, 23000.00, 28000, 'Petrol', 'Excellent', 'Premium VW Golf with all modern amenities and excellent condition.'),
-('Kia', 'Cerato', 2020, 19000.00, 42000, 'Petrol', 'Good', 'Reliable Kia Cerato with great warranty and fuel efficiency.');
+INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description, image_url) VALUES
+('Toyota', 'Camry', 2020, 22000.00, 45000, 'Petrol', 'Excellent', 'Well-maintained Toyota Camry with full service history. Excellent condition.', 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=600'),
+('Honda', 'Civic', 2019, 18500.00, 52000, 'Petrol', 'Good', 'Reliable Honda Civic with great fuel efficiency. Recently serviced.', 'https://images.unsplash.com/photo-1609708536965-bc6e90a279ba?auto=format&fit=crop&q=80&w=600'),
+('Hyundai', 'Elantra', 2021, 19500.00, 35000, 'Petrol', 'Excellent', 'Latest model Hyundai Elantra with modern features and excellent condition.', 'https://images.unsplash.com/photo-1554744512-d2c5c7da7dc8?auto=format&fit=crop&q=80&w=600'),
+('Mazda', 'Mazda3', 2020, 21000.00, 40000, 'Petrol', 'Good', 'Sporty Mazda3 with great handling and performance. Well maintained.', 'https://images.unsplash.com/photo-1559056169-641ef7e3b404?auto=format&fit=crop&q=80&w=600'),
+('Nissan', 'Altima', 2018, 17000.00, 65000, 'Petrol', 'Fair', 'Budget-friendly Nissan Altima. Mechanically sound with minor cosmetic issues.', 'https://images.unsplash.com/photo-1517524008697-20bcc1f72e16?auto=format&fit=crop&q=80&w=600'),
+('Ford', 'Focus', 2019, 16500.00, 55000, 'Diesel', 'Good', 'Efficient Ford Focus with low fuel consumption. Great for long drives.', 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600'),
+('Volkswagen', 'Golf', 2021, 23000.00, 28000, 'Petrol', 'Excellent', 'Premium VW Golf with all modern amenities and excellent condition.', 'https://images.unsplash.com/photo-1552272412-c1ca2c9c2934?auto=format&fit=crop&q=80&w=600'),
+('Kia', 'Cerato', 2020, 19000.00, 42000, 'Petrol', 'Good', 'Reliable Kia Cerato with great warranty and fuel efficiency.', 'https://images.unsplash.com/photo-1571868552521-9b24ce49f1d1?auto=format&fit=crop&q=80&w=600');
 
 -- Sample Bus Data
 INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) VALUES

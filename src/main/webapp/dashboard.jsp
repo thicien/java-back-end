@@ -13,6 +13,45 @@
     if (cars == null) {
         cars = new ArrayList<>();
     }
+    
+    // Function to get safe image URL with brand-based mapping
+    String getImageUrl(Car car) {
+        String url = car.getImageUrl();
+        if (url != null && !url.trim().isEmpty()) {
+            return url;
+        }
+        
+        // Default image mapping by brand
+        String brand = car.getBrand().toLowerCase();
+        if (brand.contains("tesla")) {
+            return "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("bmw")) {
+            return "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("ford")) {
+            return "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("audi")) {
+            return "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("porsche")) {
+            return "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("toyota")) {
+            return "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("honda")) {
+            return "https://images.unsplash.com/photo-1609708536965-bc6e90a279ba?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("hyundai")) {
+            return "https://images.unsplash.com/photo-1554744512-d2c5c7da7dc8?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("mazda")) {
+            return "https://images.unsplash.com/photo-1559056169-641ef7e3b404?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("nissan")) {
+            return "https://images.unsplash.com/photo-1517524008697-20bcc1f72e16?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("volkswagen")) {
+            return "https://images.unsplash.com/photo-1552272412-c1ca2c9c2934?auto=format&fit=crop&q=80&w=600";
+        } else if (brand.contains("kia")) {
+            return "https://images.unsplash.com/photo-1571868552521-9b24ce49f1d1?auto=format&fit=crop&q=80&w=600";
+        }
+        
+        // Generic car image as fallback
+        return "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=600";
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -213,6 +252,7 @@
             height: 200px; 
             object-fit: cover; 
             background: #e0e0e0;
+            display: block;
         }
         
         .car-info { 
@@ -385,32 +425,7 @@
 
         <!-- Car Grid -->
         <div class="car-grid" id="carGrid">
-            <%
-                if (cars != null && !cars.isEmpty()) {
-                    for (Car car : cars) {
-            %>
-                <div class="car-card" onclick="openModal('<%= car.getBrand() %>', '<%= car.getModel() %>', '<%= car.getLaunchYear() %>', '<%= car.getPrice() %>', '<%= car.getMileage() %>', '<%= car.getEngineType() %>', '<%= car.getCondition() %>', '<%= car.getDescription() %>')">
-                    <div class="car-img" style="background: url('https://via.placeholder.com/300x200?text=<%= car.getBrand() %>+<%= car.getModel() %>'); background-size: cover; background-position: center;"></div>
-                    <div class="car-info">
-                        <p class="car-price">$<%= String.format("%.0f", car.getPrice()) %></p>
-                        <h3 class="car-title"><%= car.getLaunchYear() %> <%= car.getBrand() %> <%= car.getModel() %></h3>
-                        <div class="car-details">
-                            <span>📍 <%= car.getMileage() %> km</span>
-                            <span>⛽ <%= car.getEngineType() %></span>
-                        </div>
-                    </div>
-                </div>
-            <%
-                    }
-                } else {
-            %>
-                <div class="no-cars">
-                    <h3>No cars found</h3>
-                    <p>Try adjusting your search criteria</p>
-                </div>
-            <%
-                }
-            %>
+            <!-- Cars will be loaded by JavaScript -->
         </div>
     </div>
 
@@ -422,111 +437,39 @@
         </div>
     </div>
 
-    <script>
-        // Sample cars with beautiful Unsplash images
+    <scriptCar data from database (server-side JSP)
         const carsData = [
+            <%
+                for (int i = 0; i < cars.size(); i++) {
+                    Car car = cars.get(i);
+                    String imageUrl = getImageUrl(car);
+                    // Escape quotes for JavaScript
+                    String brand = car.getBrand().replace("'", "\\'");
+                    String model = car.getModel().replace("'", "\\'");
+                    String fuel = car.getEngineType().replace("'", "\\'");
+                    String condition = car.getCondition().replace("'", "\\'");
+                    String description = car.getDescription().replace("'", "\\'").replace("\n", "\\n");
+            %>
             {
-                id: 1,
-                brand: "Tesla",
-                model: "Model 3 Long Range",
-                year: 2022,
-                price: 38500,
-                mileage: "12,400",
-                fuel: "Electric",
-                condition: "Excellent",
-                description: "Pristine condition, full self-driving capability included. One owner, non-smoker.",
-                image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 2,
-                brand: "BMW",
-                model: "M4 Competition",
-                year: 2021,
-                price: 62000,
-                mileage: "8,200",
-                fuel: "Gasoline",
-                condition: "Excellent",
-                description: "Ultimate driving machine with carbon fiber interior package and sport exhaust.",
-                image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 3,
-                brand: "Ford",
-                model: "F-150 Raptor",
-                year: 2020,
-                price: 55900,
-                mileage: "35,000",
-                fuel: "Gasoline",
-                condition: "Good",
-                description: "Off-road ready with upgraded Fox shocks and 35-inch all-terrain tires.",
-                image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 4,
-                brand: "Audi",
-                model: "A5 Sportback",
-                year: 2019,
-                price: 29500,
-                mileage: "42,000",
-                fuel: "Gasoline",
-                condition: "Good",
-                description: "Elegant styling with Quattro all-wheel drive and premium Bang & Olufsen sound.",
-                image: "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 5,
-                brand: "Porsche",
-                model: "911 Carrera",
-                year: 2023,
-                price: 115000,
-                mileage: "1,500",
-                fuel: "Gasoline",
-                condition: "Excellent",
-                description: "Like new condition. Special Guard's Red paint and sport chrono package.",
-                image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 6,
-                brand: "Toyota",
-                model: "Camry",
-                year: 2020,
-                price: 25000,
-                mileage: "52,000",
-                fuel: "Petrol",
-                condition: "Excellent",
-                description: "Reliable and fuel-efficient sedan with excellent maintenance history.",
-                image: "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 7,
-                brand: "Honda",
-                model: "Civic",
-                year: 2019,
-                price: 22000,
-                mileage: "48,000",
-                fuel: "Diesel",
-                condition: "Good",
-                description: "Compact and nimble with excellent handling and reliability.",
-                image: "https://images.unsplash.com/photo-1609708536965-bc6e90a279ba?auto=format&fit=crop&q=80&w=600"
-            },
-            {
-                id: 8,
-                brand: "Mercedes-Benz",
-                model: "C-Class",
-                year: 2021,
-                price: 45000,
-                mileage: "28,000",
-                fuel: "Gasoline",
-                condition: "Excellent",
-                description: "Luxury sedan with premium interior and advanced safety features.",
-                image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&q=80&w=600"
-            }
+                id: <%= car.getCarId() %>,
+                brand: "<%= brand %>",
+                model: "<%= model %>",
+                year: <%= car.getLaunchYear() %>,
+                price: <%= car.getPrice() %>,
+                mileage: "<%= car.getMileage() %>",
+                fuel: "<%= fuel %>",
+                condition: "<%= condition %>",
+                description: "<%= description %>",
+                image: "<%= imageUrl %>"
+            }<%= i < cars.size() - 1 ? "," : "" %>
+            <%
+                }
+            %>
         ];
 
-        let filteredCars = [...carsData];
         let currentConditionFilter = 'All';
 
-        // Display cars
+        // Display cars in grid
         function displayCars(carsArray) {
             const grid = document.getElementById('carGrid');
             
@@ -536,8 +479,8 @@
             }
 
             grid.innerHTML = carsArray.map(car => `
-                <div class="car-card" onclick="openModal('${car.brand}', '${car.model}', ${car.year}, ${car.price}, '${car.mileage}', '${car.fuel}', '${car.condition}', '${car.description}')">
-                    <div class="car-img" style="background: url('${car.image}'); background-size: cover; background-position: center;"></div>
+                <div class="car-card" onclick="openModal(${car.id})">
+                    <img class="car-img" src="${car.image}" alt="${car.brand} ${car.model}" onerror="this.src='https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=600'">
                     <div class="car-info">
                         <p class="car-price">$${car.price.toLocaleString()}</p>
                         <h3 class="car-title">${car.year} ${car.brand} ${car.model}</h3>
@@ -554,7 +497,7 @@
         function filterCars() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
-            filteredCars = carsData.filter(car => {
+            const filteredCars = carsData.filter(car => {
                 const matchesSearch = car.brand.toLowerCase().includes(searchTerm) || 
                                      car.model.toLowerCase().includes(searchTerm);
                 const matchesCondition = currentConditionFilter === 'All' || car.condition === currentConditionFilter;
@@ -578,19 +521,22 @@
         }
 
         // Modal functions
-        function openModal(brand, model, year, price, mileage, fuel, condition, description) {
+        function openModal(carId) {
+            const car = carsData.find(c => c.id === carId);
+            if (!car) return;
+            
             const modalData = document.getElementById('modalData');
             const modal = document.getElementById('carModal');
 
             modalData.innerHTML = `
-                <div class="car-img" style="background: url('https://via.placeholder.com/600x300?text=${brand}+${model}'); background-size: cover; background-position: center; height: 300px;"></div>
+                <img class="car-img" src="${car.image}" alt="${car.brand} ${car.model}" style="width: 100%; height: 300px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=600'">
                 <div class="modal-body">
-                    <h2>${year} ${brand} ${model}</h2>
-                    <p style="color:var(--primary); font-size:1.5rem; font-weight:bold; margin: 10px 0;">$${price.toLocaleString()}</p>
-                    <p><strong>Condition:</strong> <span style="color: #4CAF50; font-weight: bold;">${condition}</span></p>
-                    <p><strong>Mileage:</strong> ${mileage} km</p>
-                    <p><strong>Fuel Type:</strong> ${fuel}</p>
-                    <p style="margin-top:15px; color: #555; line-height: 1.6;">${description}</p>
+                    <h2>${car.year} ${car.brand} ${car.model}</h2>
+                    <p style="color:var(--primary); font-size:1.5rem; font-weight:bold; margin: 10px 0;">$${car.price.toLocaleString()}</p>
+                    <p><strong>Condition:</strong> <span style="color: #4CAF50; font-weight: bold;">${car.condition}</span></p>
+                    <p><strong>Mileage:</strong> ${car.mileage} km</p>
+                    <p><strong>Fuel Type:</strong> ${car.fuel}</p>
+                    <p style="margin-top:15px; color: #555; line-height: 1.6;">${car.description}</p>
                     <button class="contact-btn">Contact Seller</button>
                 </div>
             `;
@@ -608,6 +554,21 @@
                 closeModal();
             }
         });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('carModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+
+        // Initial load - display all cars
+        displayCars(carsData);
+    </script>
+</body>
+</html>
+        };
 
         // Initial load
         displayCars(carsData);

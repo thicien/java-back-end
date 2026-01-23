@@ -10,6 +10,7 @@ public class Car {
     private String engineType;
     private String condition;
     private String description;
+    private String imageUrl;
 
     // Constructors
     public Car() {}
@@ -59,6 +60,10 @@ public class Car {
         this.launchYear = launchYear;
     }
 
+    public int getYear() {
+        return launchYear;
+    }
+
     public double getPrice() {
         return price;
     }
@@ -97,5 +102,13 @@ public class Car {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

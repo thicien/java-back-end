@@ -173,6 +173,7 @@ public class CarDAO {
         car.setEngineType(rs.getString("engine_type"));
         car.setCondition(rs.getString("condition"));
         car.setDescription(rs.getString("description"));
+        car.setImageUrl(rs.getString("image_url"));
         return car;
     }
 }

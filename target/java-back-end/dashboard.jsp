@@ -423,30 +423,104 @@
     </div>
 
     <script>
-        // Get cars data from server
+        // Sample cars with beautiful Unsplash images
         const carsData = [
-            <%
-                if (cars != null && !cars.isEmpty()) {
-                    for (int i = 0; i < cars.size(); i++) {
-                        Car car = cars.get(i);
-            %>
             {
-                id: <%= i + 1 %>,
-                brand: "<%= car.getBrand() %>",
-                model: "<%= car.getModel() %>",
-                year: <%= car.getLaunchYear() %>,
-                price: <%= car.getPrice() %>,
-                mileage: "<%= car.getMileage() %>",
-                fuel: "<%= car.getEngineType() %>",
-                condition: "<%= car.getCondition() %>",
-                description: "<%= car.getDescription().replaceAll("\"", "\\\\\"") %>",
-                image: "https://via.placeholder.com/400x300?text=<%= car.getBrand() %>+<%= car.getModel() %>"
+                id: 1,
+                brand: "Tesla",
+                model: "Model 3 Long Range",
+                year: 2022,
+                price: 38500,
+                mileage: "12,400",
+                fuel: "Electric",
+                condition: "Excellent",
+                description: "Pristine condition, full self-driving capability included. One owner, non-smoker.",
+                image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 2,
+                brand: "BMW",
+                model: "M4 Competition",
+                year: 2021,
+                price: 62000,
+                mileage: "8,200",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Ultimate driving machine with carbon fiber interior package and sport exhaust.",
+                image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 3,
+                brand: "Ford",
+                model: "F-150 Raptor",
+                year: 2020,
+                price: 55900,
+                mileage: "35,000",
+                fuel: "Gasoline",
+                condition: "Good",
+                description: "Off-road ready with upgraded Fox shocks and 35-inch all-terrain tires.",
+                image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 4,
+                brand: "Audi",
+                model: "A5 Sportback",
+                year: 2019,
+                price: 29500,
+                mileage: "42,000",
+                fuel: "Gasoline",
+                condition: "Good",
+                description: "Elegant styling with Quattro all-wheel drive and premium Bang & Olufsen sound.",
+                image: "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 5,
+                brand: "Porsche",
+                model: "911 Carrera",
+                year: 2023,
+                price: 115000,
+                mileage: "1,500",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Like new condition. Special Guard's Red paint and sport chrono package.",
+                image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 6,
+                brand: "Toyota",
+                model: "Camry",
+                year: 2020,
+                price: 25000,
+                mileage: "52,000",
+                fuel: "Petrol",
+                condition: "Excellent",
+                description: "Reliable and fuel-efficient sedan with excellent maintenance history.",
+                image: "https://images.unsplash.com/photo-1552820728-8ac41f1ce891?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 7,
+                brand: "Honda",
+                model: "Civic",
+                year: 2019,
+                price: 22000,
+                mileage: "48,000",
+                fuel: "Diesel",
+                condition: "Good",
+                description: "Compact and nimble with excellent handling and reliability.",
+                image: "https://images.unsplash.com/photo-1609708536965-bc6e90a279ba?auto=format&fit=crop&q=80&w=600"
+            },
+            {
+                id: 8,
+                brand: "Mercedes-Benz",
+                model: "C-Class",
+                year: 2021,
+                price: 45000,
+                mileage: "28,000",
+                fuel: "Gasoline",
+                condition: "Excellent",
+                description: "Luxury sedan with premium interior and advanced safety features.",
+                image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&q=80&w=600"
             }
-            <%= i < cars.size() - 1 ? "," : "" %>
-            <%
-                    }
-                }
-            %>
         ];
 
         let filteredCars = [...carsData];

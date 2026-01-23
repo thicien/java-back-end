@@ -78,6 +78,54 @@ public class DatabaseConnection {
                     "FOREIGN KEY (bus_id) REFERENCES buses(bus_id)" +
                     ")");
 
+            // Create Cars Table for Used Cars Marketplace
+            stmt.execute("CREATE TABLE IF NOT EXISTS cars (" +
+                    "car_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "brand VARCHAR(100) NOT NULL," +
+                    "model VARCHAR(100) NOT NULL," +
+                    "launch_year INT NOT NULL," +
+                    "price DECIMAL(10, 2) NOT NULL," +
+                    "mileage INT NOT NULL," +
+                    "engine_type VARCHAR(50) NOT NULL," +
+                    "condition VARCHAR(50) NOT NULL," +
+                    "description TEXT," +
+                    "created_at DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                    ")");
+
+            // Insert sample car data
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Toyota', 'Camry', 2020, 22000.00, 45000, 'Petrol', 'Excellent', 'Well-maintained Toyota Camry with full service history. Excellent condition.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Toyota' AND model = 'Camry')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Honda', 'Civic', 2019, 18500.00, 52000, 'Petrol', 'Good', 'Reliable Honda Civic with great fuel efficiency. Recently serviced.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Honda' AND model = 'Civic')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Hyundai', 'Elantra', 2021, 19500.00, 35000, 'Petrol', 'Excellent', 'Latest model Hyundai Elantra with modern features and excellent condition.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Hyundai' AND model = 'Elantra')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Mazda', 'Mazda3', 2020, 21000.00, 40000, 'Petrol', 'Good', 'Sporty Mazda3 with great handling and performance. Well maintained.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Mazda' AND model = 'Mazda3')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Nissan', 'Altima', 2018, 17000.00, 65000, 'Petrol', 'Fair', 'Budget-friendly Nissan Altima. Mechanically sound with minor cosmetic issues.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Nissan' AND model = 'Altima')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Ford', 'Focus', 2019, 16500.00, 55000, 'Diesel', 'Good', 'Efficient Ford Focus with low fuel consumption. Great for long drives.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Ford' AND model = 'Focus')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Volkswagen', 'Golf', 2021, 23000.00, 28000, 'Petrol', 'Excellent', 'Premium VW Golf with all modern amenities and excellent condition.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Volkswagen' AND model = 'Golf')");
+            
+            stmt.execute("INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) " +
+                    "SELECT 'Kia', 'Cerato', 2020, 19000.00, 42000, 'Petrol', 'Good', 'Reliable Kia Cerato with great warranty and fuel efficiency.' " +
+                    "WHERE NOT EXISTS (SELECT 1 FROM cars WHERE brand = 'Kia' AND model = 'Cerato')");
+
+
             // Insert sample bus data
             stmt.execute("INSERT INTO buses (bus_name, bus_number, departure_location, arrival_location, departure_date, departure_time, fare, total_seats, available_seats, bus_type) " +
                     "SELECT 'Royal Galactic Sleeper', 'BUS001', 'New York', 'Boston', '2026-01-17', '20:00:00', 65.00, 42, 38, 'AC Sleeper (2+1)' " +

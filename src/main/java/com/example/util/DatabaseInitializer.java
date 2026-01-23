@@ -5,8 +5,66 @@ import java.sql.*;
 public class DatabaseInitializer {
     
     public static void main(String[] args) {
+        initializeCars();
         initializeSeats();
-        System.out.println("Database initialization completed!");
+        System.out.println("\n✅ Database initialization completed!");
+    }
+
+    public static void initializeCars() {
+        System.out.println("🚗 Initializing database with sample cars...");
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            if (conn != null) {
+                // Clear existing cars
+                String deleteQuery = "DELETE FROM cars";
+                try (Statement stmt = conn.createStatement()) {
+                    stmt.executeUpdate(deleteQuery);
+                    System.out.println("✓ Cleared existing cars");
+                }
+
+                // Insert sample cars
+                String insertQuery = "INSERT INTO cars (brand, model, launch_year, price, mileage, engine_type, condition, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                
+                try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
+                    int[][] carData = {
+                        {2020, 22000, 45000}, // Toyota Camry
+                        {2019, 18500, 52000}, // Honda Civic
+                        {2021, 19500, 35000}, // Hyundai Elantra
+                        {2020, 21000, 40000}, // Mazda Mazda3
+                        {2018, 17000, 65000}, // Nissan Altima
+                        {2019, 16500, 55000}, // Ford Focus
+                        {2021, 23000, 28000}, // Volkswagen Golf
+                        {2020, 19000, 42000}  // Kia Cerato
+                    };
+                    
+                    String[][] carInfo = {
+                        {"Toyota", "Camry", "Petrol", "Excellent", "Well-maintained Toyota Camry with full service history. Excellent condition."},
+                        {"Honda", "Civic", "Petrol", "Good", "Reliable Honda Civic with great fuel efficiency. Recently serviced."},
+                        {"Hyundai", "Elantra", "Petrol", "Excellent", "Latest model Hyundai Elantra with modern features and excellent condition."},
+                        {"Mazda", "Mazda3", "Petrol", "Good", "Sporty Mazda3 with great handling and performance. Well maintained."},
+                        {"Nissan", "Altima", "Petrol", "Fair", "Budget-friendly Nissan Altima. Mechanically sound with minor cosmetic issues."},
+                        {"Ford", "Focus", "Diesel", "Good", "Efficient Ford Focus with low fuel consumption. Great for long drives."},
+                        {"Volkswagen", "Golf", "Petrol", "Excellent", "Premium VW Golf with all modern amenities and excellent condition."},
+                        {"Kia", "Cerato", "Petrol", "Good", "Reliable Kia Cerato with great warranty and fuel efficiency."}
+                    };
+                    
+                    for (int i = 0; i < carInfo.length; i++) {
+                        pstmt.setString(1, carInfo[i][0]);
+                        pstmt.setString(2, carInfo[i][1]);
+                        pstmt.setInt(3, carData[i][0]);
+                        pstmt.setDouble(4, carData[i][1]);
+                        pstmt.setInt(5, carData[i][2]);
+                        pstmt.setString(6, carInfo[i][2]);
+                        pstmt.setString(7, carInfo[i][3]);
+                        pstmt.setString(8, carInfo[i][4]);
+                        pstmt.executeUpdate();
+                    }
+                    System.out.println("✓ Successfully inserted 8 sample cars");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error initializing cars:");
+            e.printStackTrace();
+        }
     }
 
     public static void initializeSeats() {
